@@ -18,13 +18,9 @@ navigator.mediaDevices
       console.error(err);
   });
 
-setTimeout(() => {
-     width = video.clientWidth;
-     height = video.clientHeight;    
-     readCamera();
-    },500);
-
 function readCamera(){
+    width = video.clientWidth;
+    height = video.clientHeight;    
     const context = canvas.getContext("2d");
     canvas.width = width;
     canvas.height = height;
@@ -36,6 +32,8 @@ function readCamera(){
 
     if (code) {
         log.textContent = code;
+    } else {
+        log.textContent = "No QR code was detected."
     }
     setTimeout(() => {
         readCamera();
