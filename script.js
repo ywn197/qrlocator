@@ -63,10 +63,10 @@ class MusicPlayer {
         this.musicMap.clear();
         const lines = text.split('\n');
         for (const line of lines) {
-            const parts = line.split(':');
-            if (parts.length === 2) {
-                const tag = parts[0].trim();
-                const url = parts[1].trim();
+            const colonIndex = line.indexOf(':');
+            if (colonIndex > -1) {
+                const tag = line.substring(0, colonIndex).trim();
+                const url = line.substring(colonIndex + 1).trim();
                 if (tag && url) {
                     this.musicMap.set(tag, url);
                 }
