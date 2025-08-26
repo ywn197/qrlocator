@@ -30,7 +30,7 @@ function readCamera(){
     context.drawImage(video,0,0,width,height);
     console.log("camera captured");
     log.textContent = "copy2canvas";
-    const image = context.getImageData(0, 0, width, height);
+    const image = context.getImageData(0, 0, width, height).catch((e)=>{log.textContent=e;});
     const code = jsQR(image, width, height);
 
     if (code) {
