@@ -1,5 +1,5 @@
-const width = 320; 
-const height = 0;
+const width = 1920; 
+const height = 1080;
 
 const streaming = false;
 const log = document.getElementById("log")
@@ -20,8 +20,6 @@ navigator.mediaDevices
 
 video.addEventListener("canplay",
     (ev) => {
-        height = video.videoHeight;
-        width = video.videoWidth;
         video.setAttribute("width", width);
         video.setAttribute("height", height);
         canvas.setAttribute("width", width);
