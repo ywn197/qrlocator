@@ -34,7 +34,7 @@ function readCamera(){
     const code = jsQR(image.data, width, height);
 
     if (code) {
-        log.textContent = code.location;
+        log.textContent = code.data;
     } else {
         log.textContent = "No QR code was detected."
     }
