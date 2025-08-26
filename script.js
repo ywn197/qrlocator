@@ -30,3 +30,15 @@ video.addEventListener("canplay",
     },
     false
 );
+
+function copy2canvas(){
+    const context = canvas.getContext("2d");
+    canvas.width = width;
+    canvas.height = height;
+    context.drawImage(video,0,0,width,height);
+    console.log("camera captured")
+    setTimeout(() => {
+        copy2canvas();
+    },100)
+};
+copy2canvas()
