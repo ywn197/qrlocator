@@ -20,6 +20,8 @@ navigator.mediaDevices
 
 video.addEventListener("canplay",
     (ev) => {
+        height = video.clientHeight;
+        width = video.clientWidth;
         video.setAttribute("width", width);
         video.setAttribute("height", height);
         canvas.setAttribute("width", width);
@@ -30,15 +32,21 @@ video.addEventListener("canplay",
     false
 );
 
-function copy2canvas(){
+function readCamera(){
     const context = canvas.getContext("2d");
     canvas.width = width;
     canvas.height = height;
     context.drawImage(video,0,0,width,height);
     console.log("camera captured");
     log.textContent = "copy2canvas";
+    const image = context.getImageData(0, 0, width, height);
+    const code = jsQR(image, width, height);
+
+    if (code) {
+        log.textContent = code;
+    }
     setTimeout(() => {
-        copy2canvas();
+        readCamera();
     },100);
 };
 copy2canvas()
