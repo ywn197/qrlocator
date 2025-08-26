@@ -12,15 +12,17 @@ navigator.mediaDevices
   .then((stream) => {
     video.srcObject = stream;
     video.play();
-    setTimeout(() => {
-     width = video.clientWidth;
-     height = video.clientHeight;    
-     readCamera();
-    },500);
+    
   })
   .catch((err) => {
       console.error(err);
   });
+
+setTimeout(() => {
+     width = video.clientWidth;
+     height = video.clientHeight;    
+     readCamera();
+    },500);
 
 function readCamera(){
     const context = canvas.getContext("2d");
