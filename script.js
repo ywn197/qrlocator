@@ -2,6 +2,7 @@ const width = 320;
 const height = 0;
 
 const streaming = false;
+const log = document.getElementById("log")
 
 let video = document.getElementById("video");
 let canvas = document.getElementById("canvas");
@@ -36,9 +37,10 @@ function copy2canvas(){
     canvas.width = width;
     canvas.height = height;
     context.drawImage(video,0,0,width,height);
-    console.log("camera captured")
+    console.log("camera captured");
+    log.textContent = "copy2canvas";
     setTimeout(() => {
         copy2canvas();
-    },100)
+    },100);
 };
 copy2canvas()
