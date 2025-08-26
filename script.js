@@ -12,6 +12,11 @@ navigator.mediaDevices
   .then((stream) => {
     video.srcObject = stream;
     video.play();
+    video.onloadeddata = () => {
+        width = video.clientWidth;
+        height = video.clientHeight;
+        readCamera()
+    }
     
   })
   .catch((err) => {
@@ -19,8 +24,6 @@ navigator.mediaDevices
   });
 
 function readCamera(){
-    width = video.clientWidth;
-    height = video.clientHeight;    
     const context = canvas.getContext("2d");
     canvas.width = width;
     canvas.height = height;
