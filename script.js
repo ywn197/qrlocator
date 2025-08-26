@@ -18,17 +18,17 @@ navigator.mediaDevices
       console.error(err);
   });
 
-//video.addEventListener("canplay",
-//    (ev) => {
-//        streaming = true;
-//
-//    },
-//    false
-//);
+video.addEventListener("canplay",
+    (ev) => {
+        streaming = true;
+
+    },
+    false
+);
 
 function readCamera(){
-    canvas.setAttribute("width", video.clientWidth);
-    canvas.setAttribute("height", video.clientWidth);
+    height = video.clientHeight;
+    width = video.clientWidth;
     const context = canvas.getContext("2d");
     canvas.width = width;
     canvas.height = height;
