@@ -1,5 +1,5 @@
-const width = 1920; 
-const height = 1080;
+let width = 1920; 
+let height = 1080;
 
 const log = document.getElementById("log")
 
