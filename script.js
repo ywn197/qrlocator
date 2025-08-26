@@ -8,9 +8,10 @@ class QRReader {
         this.stream = null;
     }
 
+
     async init() {
         try {
-            this.stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            this.stream = await navigator.mediaDevices.getUserMedia({ video: {width:1920 height:1080 facingMode: { exact: "environment" }}, audio: false });
             this.videoEl.srcObject = this.stream;
             this.videoEl.play();
             this.videoEl.onloadeddata = () => {
