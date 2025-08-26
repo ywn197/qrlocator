@@ -61,3 +61,14 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
 }
+
+#log a {
+    color: #81d4fa; /* A light blue color for links */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+#log a:hover {
+    color: #b3e5fc;
+    text-decoration: underline;
+}

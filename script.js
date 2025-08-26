@@ -35,7 +35,12 @@ class QRReader {
         const code = jsQR(image.data, this.width, this.height);
 
         if (code) {
-            this.logEl.textContent = code.data;
+            const urlRegex = /^(https?|ftp)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:@&=+$,%#]+)$/;
+            if (urlRegex.test(code.data)) {
+                this.logEl.innerHTML = `<a href="${code.data}" target="_blank">${code.data}</a>`;
+            } else {
+                this.logEl.textContent = code.data;
+            }
         } else {
             this.logEl.textContent = "No QR code was detected.";
         }
