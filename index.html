@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
@@ -16,8 +16,19 @@
         <div class="overlay">
             <p id="log">Initializing...</p>
         </div>
+        <button id="settings-toggle">⚙️</button>
     </div>
 
+    <div id="settings-panel" class="hidden">
+        <h2>Music Settings</h2>
+        <p>Enter one "tag:URL" pair per line.</p>
+        <textarea id="music-map-input" rows="10">forest:https://example.com/forest.mp3
+castle:https://example.com/castle.mp3
+ocean:https://example.com/ocean.mp3</textarea>
+        <button id="update-settings">Update</button>
+    </div>
+
+    <audio id="audio" autoplay></audio>
     <script src="script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@latest/dist/jsQR.js"></script>
 </body>

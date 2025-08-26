@@ -45,6 +45,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    pointer-events: none; /* Allow clicks to go through */
 }
 
 #log {
@@ -62,13 +63,84 @@ body {
     transition: all 0.3s ease;
 }
 
-#log a {
-    color: #81d4fa; /* A light blue color for links */
-    text-decoration: none;
-    transition: color 0.3s ease;
+#settings-toggle {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.3s ease;
 }
 
-#log a:hover {
-    color: #b3e5fc;
-    text-decoration: underline;
+#settings-toggle:hover {
+    background: rgba(0,0,0,0.8);
+}
+
+#settings-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    background: #2c2c2c;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+    z-index: 100;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#settings-panel.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+#settings-panel h2 {
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+#settings-panel p {
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: #aaa;
+}
+
+#settings-panel textarea {
+    width: 100%;
+    background: #1e1e1e;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 10px;
+    color: #e0e0e0;
+    font-family: monospace;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+#settings-panel button {
+    width: 100%;
+    padding: 12px;
+    background: #4a90e2;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+#settings-panel button:hover {
+    background: #5aa1f2;
 }
