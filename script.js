@@ -1,7 +1,6 @@
 const width = 1920; 
 const height = 1080;
 
-const streaming = false;
 const log = document.getElementById("log")
 
 let video = document.getElementById("video");
@@ -13,22 +12,17 @@ navigator.mediaDevices
   .then((stream) => {
     video.srcObject = stream;
     video.play();
+    setTimeout(() => {
+     width = video.clientWidth;
+     height = video.clientHeight;    
+     readCamera();
+    },500);
   })
   .catch((err) => {
       console.error(err);
   });
 
-video.addEventListener("canplay",
-    (ev) => {
-        streaming = true;
-
-    },
-    false
-);
-
 function readCamera(){
-    height = video.clientHeight;
-    width = video.clientWidth;
     const context = canvas.getContext("2d");
     canvas.width = width;
     canvas.height = height;
@@ -45,4 +39,3 @@ function readCamera(){
         readCamera();
     },100);
 };
-copy2canvas()
