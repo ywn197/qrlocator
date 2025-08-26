@@ -8,22 +8,34 @@ class QRReader {
         this.stream = null;
     }
 
-
     async init() {
+        const firstTryConstraints = { video: { facingMode: "environment" }, audio: false };
+        const secondTryConstraints = { video: true, audio: false };
+
         try {
-            this.stream = await navigator.mediaDevices.getUserMedia({
-                video: {width:1920, height:1080, facingMode: { exact: "environment" }}, 
-                audio: false });
-            this.videoEl.srcObject = this.stream;
-            this.videoEl.play();
-            this.videoEl.onloadeddata = () => {
-                this.width = this.videoEl.clientWidth;
-                this.height = this.videoEl.clientHeight;
-            };
+            this.stream = await navigator.mediaDevices.getUserMedia(firstTryConstraints);
         } catch (err) {
-            console.error(err);
-            this.logEl.textContent = "Failed to access camera.";
+            console.warn("Could not get environment camera, trying default camera", err);
+            try {
+                this.stream = await navigator.mediaDevices.getUserMedia(secondTryConstraints);
+            } catch (err) {
+                console.error("Failed to access any camera.", err);
+                this.logEl.textContent = "Failed to access camera.";
+                throw new Error("Camera access failed");
+            }
         }
+
+        this.videoEl.srcObject = this.stream;
+        this.videoEl.play();
+
+        return new Promise((resolve) => {
+            this.videoEl.onloadeddata = () => {
+                this.width = this.videoEl.videoWidth;
+                this.height = this.videoEl.videoHeight;
+                console.log(`Camera initialized: ${this.width}x${this.height}`);
+                resolve();
+            };
+        });
     }
 
     readFrame() {
@@ -35,25 +47,16 @@ class QRReader {
         const image = context.getImageData(0, 0, this.width, this.height);
         const code = jsQR(image.data, this.width, this.height);
 
-        if (code) {
-            this.logEl.textContent = `[${code.data}]`;
-            return code.data;
-        } else {
-            this.logEl.textContent = "No QR code detected.";
-            return null;
-        }
-
-
+        return code ? code.data : null;
     }
 }
 
 class MusicPlayer {
-    constructor(qrReader,audio) {
+    constructor(audioEl) {
+        this.audio = audioEl;
         this.musicMap = new Map();
-        this.currentAudio = null;
         this.currentTag = null;
-        this.qrReader = qrReader;
-        this.audio = audio
+        this.fadeInterval = null;
     }
 
     updateMusicMap(text) {
@@ -72,58 +75,114 @@ class MusicPlayer {
         console.log("Music map updated:", this.musicMap);
     }
 
+    playTag(tag) {
+        if (tag === this.currentTag) return;
 
+        clearInterval(this.fadeInterval);
 
-    play() {
-        const tag = this.qrReader.readFrame();
-        if(tag){
-            if (tag === this.currentTag) {
-                return; // Already playing the correct music
-            }
-            if(!this.musicMap.has(tag)){
-                return;
-            }
-            const url = this.musicMap.get(tag);
-            if(url == "stop"){
-                this.audio.src = "";
-            } else {
-                while (this.audio.volume > 0.001){
-                    this.audio.volume = this.audio.volume / 1.2;
+        if (this.audio.src && !this.audio.paused) {
+            this.fadeOut(() => {
+                if (this.musicMap.has(tag)) {
+                    this.startNewTrack(tag);
+                } else {
+                    this.currentTag = null;
                 }
-                this.audio.src = url;
-                this.audio.play;
-                this.currentTag = tag;
-            }
+            });
+        } else if (this.musicMap.has(tag)) {
+            this.startNewTrack(tag);
         }
-        setTimeout(() => this.play(), 500); // Loop every 500ms
+    }
+
+    startNewTrack(tag) {
+        console.log(`Playing: ${tag}`);
+        this.currentTag = tag;
+        this.audio.src = this.musicMap.get(tag);
+        this.audio.volume = 0;
+        this.audio.play().catch(e => console.error("Play failed", e));
+        this.fadeIn();
+    }
+
+    fadeIn() {
+        this.fadeInterval = setInterval(() => {
+            if (this.audio.volume < 0.99) {
+                this.audio.volume = Math.min(1, this.audio.volume + 0.05);
+            } else {
+                this.audio.volume = 1;
+                clearInterval(this.fadeInterval);
+            }
+        }, 50);
+    }
+
+    fadeOut(callback) {
+        this.fadeInterval = setInterval(() => {
+            if (this.audio.volume > 0.01) {
+                this.audio.volume = Math.max(0, this.audio.volume - 0.05);
+            } else {
+                this.audio.volume = 0;
+                this.audio.pause();
+                this.audio.src = "";
+                clearInterval(this.fadeInterval);
+                if (callback) callback();
+            }
+        }, 50);
+    }
+}
+
+class AppController {
+    constructor() {
+        this.video = document.getElementById("video");
+        this.canvas = document.getElementById("canvas");
+        this.log = document.getElementById("log");
+        this.audio = document.getElementById("audio");
+        this.settingsToggle = document.getElementById("settings-toggle");
+        this.settingsPanel = document.getElementById("settings-panel");
+        this.musicMapInput = document.getElementById("music-map-input");
+        this.updateSettingsBtn = document.getElementById("update-settings");
+
+        this.qrReader = new QRReader(this.video, this.canvas, this.log);
+        this.musicPlayer = new MusicPlayer(this.audio);
+    }
+
+    async init() {
+        this.setupUIListeners();
+        this.musicPlayer.updateMusicMap(this.musicMapInput.value);
+
+        try {
+            await this.qrReader.init();
+            this.log.textContent = "Camera ready. Starting scan...";
+            this.startMainLoop();
+        } catch (error) {
+            this.log.textContent = "Could not start QR Scanner.";
+            console.error(error);
+        }
+    }
+
+    setupUIListeners() {
+        this.settingsToggle.addEventListener("click", () => {
+            this.settingsPanel.classList.toggle("hidden");
+        });
+
+        this.updateSettingsBtn.addEventListener("click", () => {
+            this.musicPlayer.updateMusicMap(this.musicMapInput.value);
+            this.settingsPanel.classList.add("hidden");
+        });
+    }
+
+    startMainLoop() {
+        setInterval(() => {
+            const tag = this.qrReader.readFrame();
+            if (tag) {
+                this.log.textContent = `[${tag}]`;
+                this.musicPlayer.playTag(tag);
+            } else {
+                this.log.textContent = "No QR code detected.";
+                this.musicPlayer.playTag(null); // Stop music if no code
+            }
+        }, 500);
     }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    const video = document.getElementById("video");
-    const canvas = document.getElementById("canvas");
-    const log = document.getElementById("log");
-    const settingsToggle = document.getElementById("settings-toggle");
-    const settingsPanel = document.getElementById("settings-panel");
-    const musicMapInput = document.getElementById("music-map-input");
-    const updateSettingsBtn = document.getElementById("update-settings");
-    const audio = document.getElementById("audio")
-
-    const qrReader = new QRReader(video, canvas, log);
-    const musicPlayer = new MusicPlayer(qrReader,audio);
-
-    // Initial setup
-    musicPlayer.updateMusicMap(musicMapInput.value);
-    qrReader.init();
-
-    // UI Event Listeners
-    settingsToggle.addEventListener("click", () => {
-        settingsPanel.classList.toggle("hidden");
-    });
-
-    updateSettingsBtn.addEventListener("click", () => {
-        musicPlayer.updateMusicMap(musicMapInput.value);
-        settingsPanel.classList.add("hidden");
-    });
-    musicPlayer.play();
+    const app = new AppController();
+    app.init();
 });
